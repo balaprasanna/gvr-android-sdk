@@ -32,6 +32,11 @@ android {
             proguardFiles.add(file('../../proguard-gvr.txt'))
         }
     }
+    repositories {
+        maven {
+            url "http://maven.ouya.tv/"
+        }
+    }
 }
 
 dependencies {
@@ -41,4 +46,6 @@ dependencies {
 
     compile 'com.google.android.exoplayer:exoplayer:r1.5.10'
     compile 'com.google.protobuf.nano:protobuf-javanano:3.0.0-alpha-7'
+
+    compile 'ouya:ouya-sdk:+'
 }

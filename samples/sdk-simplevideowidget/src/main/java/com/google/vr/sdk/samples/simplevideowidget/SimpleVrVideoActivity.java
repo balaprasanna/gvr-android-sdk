@@ -9,6 +9,8 @@ import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.util.Pair;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
@@ -18,6 +20,8 @@ import com.google.vr.sdk.widgets.video.VrVideoEventListener;
 import com.google.vr.sdk.widgets.video.VrVideoView;
 import com.google.vr.sdk.widgets.video.VrVideoView.Options;
 import java.io.IOException;
+
+import tv.ouya.console.api.OuyaController;
 
 /**
  * A test activity that renders a 360 video using {@link VrVideoView}.
@@ -87,7 +91,8 @@ public class SimpleVrVideoActivity extends Activity {
    * video.
    */
   private SeekBar seekBar;
-  private TextView statusText;
+  private TextView statusText, subtitleText;
+  public int deviceId;
 
   private ImageButton volumeToggle;
   private boolean isMuted;
@@ -101,11 +106,15 @@ public class SimpleVrVideoActivity extends Activity {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    OuyaController.init(this);
+
     setContentView(R.layout.main_layout);
 
     seekBar = (SeekBar) findViewById(R.id.seek_bar);
     seekBar.setOnSeekBarChangeListener(new SeekBarListener());
     statusText = (TextView) findViewById(R.id.status_text);
+    subtitleText = (TextView) findViewById(R.id.subtitle);
 
     // Make the source link clickable.
     TextView sourceText = (TextView) findViewById(R.id.source);
@@ -376,4 +385,49 @@ public class SimpleVrVideoActivity extends Activity {
       return true;
     }
   }
+
+
+  @Override
+  public boolean onKeyDown(int keyCode, KeyEvent event) {
+    return OuyaController.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
+  }
+
+  @Override
+  public boolean onKeyUp(int keyCode, KeyEvent event) {
+    return OuyaController.onKeyUp(keyCode, event) || super.onKeyUp(keyCode, event);
+  }
+
+  @Override
+  public boolean onGenericMotionEvent(MotionEvent event) {
+    deviceId = event.getDeviceId();
+
+    OuyaController c = OuyaController.getControllerByDeviceId(deviceId);
+    if(c != null) {
+      System.out.println("BUTTON_A" + c.getButton(OuyaController.BUTTON_A));
+      System.out.println("BUTTON_HOME" + c.getButton(OuyaController.BUTTON_HOME));
+      System.out.println("BUTTON_DPAD" + c.getButton(OuyaController.BUTTON_DPAD));
+      System.out.println("BUTTON_DPAD_DOWN" + c.getButton(OuyaController.BUTTON_DPAD_DOWN));
+      System.out.println("BUTTON_DPAD_LEFT" + c.getButton(OuyaController.BUTTON_DPAD_LEFT));
+      System.out.println("BUTTON_DPAD_RIGHT" + c.getButton(OuyaController.BUTTON_DPAD_RIGHT));
+      System.out.println("BUTTON_DPAD_UP" + c.getButton(OuyaController.BUTTON_DPAD_UP));
+      System.out.println("BUTTON_L1" + c.getButton(OuyaController.BUTTON_L1));
+      System.out.println("BUTTON_L2" + c.getButton(OuyaController.BUTTON_L2));
+      System.out.println("BUTTON_L3" + c.getButton(OuyaController.BUTTON_L3));
+      System.out.println("BUTTON_MENU" + c.getButton(OuyaController.BUTTON_MENU));
+      System.out.println("BUTTON_U" + c.getButton(OuyaController.BUTTON_U));
+      System.out.println("BUTTON_Y" + c.getButton(OuyaController.BUTTON_Y));
+      System.out.println("BUTTON_O" + c.getButton(OuyaController.BUTTON_O));
+    }
+
+    String str = "" + event.getButtonState();
+    subtitleText.setText( str +" -> "+ event.toString());
+    System.out.println("bala" + event.getDevice().getName());
+    System.out.println("bala" + event.getDevice().getDescriptor());
+    System.out.println("bala" + event.getDevice().getControllerNumber());
+    System.out.println("bala" + event.getDevice().getId());
+    System.out.println("bala" + event.getDevice().getProductId());
+
+    return OuyaController.onGenericMotionEvent(event) || super.onGenericMotionEvent(event);
+  }
+
 }
